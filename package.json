@@ -1,0 +1,20 @@
+{
+  "name": "ants-vs-bees",
+  "version": "1.0.0",
+  "description": "A simple turn-based tower-defense game played on the command-line",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "node build/index.js",
+    "test": "node build/index.js --debug"
+  },
+  "author": "YOUR NAME HERE",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "vorpal": "^1.11.4"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.50",
+    "@types/node": "^7.0.0"
+  }
+}
