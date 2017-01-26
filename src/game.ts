@@ -51,14 +51,14 @@ class Place {
       if (dist >= minDistance && p.bees.length > 0) {
         return p.bees[0];
       }
-      p = p.entrance;
+      p = p.entrance; // trace back to the previous spot
     }
     return undefined;
   }
 
   /**
     * Add an ant into the current place 
-    * @param an ant object that will be added
+    * @param ant  An ant object that will be added
     * @returns true if the ant has been successfully added, otherwise false
     */
   addAnt(ant: Ant): boolean {
@@ -79,7 +79,7 @@ class Place {
   }
 
   /**
-    * Remove an ant from the current place 
+    * remove an ant from the current place 
     * @returns the ant that has been removed
     */
   removeAnt(): Ant {
@@ -96,7 +96,7 @@ class Place {
   }
 
   /**
-    * Add a bee into the current place 
+    * add a bee into the current place 
     * @param bee  A bee object that will be added
     */
   addBee(bee: Bee): void {
@@ -105,7 +105,7 @@ class Place {
   }
 
   /**
-    * Remove a bee from the array of bees at the current place if any
+    * remove a bee from the array of bees at the current place if any
     * @param bee  A bee object that will be removed
     */
   removeBee(bee: Bee): void {
@@ -117,7 +117,7 @@ class Place {
   }
 
   /**
-    * Remove all bees from the array of bees at the current place
+    * remove all bees from the array of bees at the current place
     */
   removeAllBees(): void {
     this.bees.forEach((bee) => bee.setPlace(undefined));
@@ -146,7 +146,7 @@ class Place {
   }
 
   /**
-    * if the current place has water, remove anything except a Scuba ant
+    * if the current place has water, remove anything that's not a Scuba ant
     */
   act() {
     if (this.water) {

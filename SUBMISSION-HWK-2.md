@@ -1,7 +1,7 @@
 The below questions should be answered regarding your submission!
 
 ##### Did you receive help from any other sources (classmates, etc)? If so, please list who (be specific!). #####
-> Slack discussion, my friend: Patrick Yi
+> Slack discussion board, my friend Patrick Yi
 
 
 ##### Approximately how many hours did it take you to complete this assignment? #####
