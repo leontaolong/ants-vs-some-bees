@@ -15,7 +15,7 @@ class Place {
    */
   constructor(readonly name: string,
     protected readonly water = false,
-    private exit?: Place,                    
+    private exit?: Place,
     private entrance?: Place) { }
 
   getExit(): Place { return this.exit; }
@@ -39,7 +39,7 @@ class Place {
   }
 
   getBees(): Bee[] { return this.bees; }
-  
+
   /**
    * @param maxDistance  max distance (in number) 
    * @param minDistance  min distance (in number)
@@ -56,11 +56,11 @@ class Place {
     return undefined;
   }
 
- /**
-   * Add an ant into the current place 
-   * @param an ant object that will be added
-   * @returns true if the ant has been successfully added, otherwise false
-   */
+  /**
+    * Add an ant into the current place 
+    * @param an ant object that will be added
+    * @returns true if the ant has been successfully added, otherwise false
+    */
   addAnt(ant: Ant): boolean {
     if (ant instanceof GuardAnt) { // if the current ant is a Guard ant
       if (this.guard === undefined) { // if the place is currently empty
@@ -69,7 +69,7 @@ class Place {
         return true;
       }
     }
-    else 
+    else
       if (this.ant === undefined) { // if the place is currently empty
         this.ant = ant;
         this.ant.setPlace(this);
@@ -78,10 +78,10 @@ class Place {
     return false;
   }
 
- /**
-   * Remove an ant from the current place 
-   * @returns the ant that has been removed
-   */
+  /**
+    * Remove an ant from the current place 
+    * @returns the ant that has been removed
+    */
   removeAnt(): Ant {
     if (this.guard !== undefined) {
       let guard = this.guard;
@@ -95,19 +95,19 @@ class Place {
     }
   }
 
- /**
-   * Add a bee into the current place 
-   * @param bee  A bee object that will be added
-   */
+  /**
+    * Add a bee into the current place 
+    * @param bee  A bee object that will be added
+    */
   addBee(bee: Bee): void {
     this.bees.push(bee);
     bee.setPlace(this);
   }
 
- /**
-   * Remove a bee from the array of bees at the current place if any
-   * @param bee  A bee object that will be removed
-   */
+  /**
+    * Remove a bee from the array of bees at the current place if any
+    * @param bee  A bee object that will be removed
+    */
   removeBee(bee: Bee): void {
     var index = this.bees.indexOf(bee);
     if (index >= 0) {
@@ -116,26 +116,26 @@ class Place {
     }
   }
 
- /**
-   * Remove all bees from the array of bees at the current place
-   */
+  /**
+    * Remove all bees from the array of bees at the current place
+    */
   removeAllBees(): void {
     this.bees.forEach((bee) => bee.setPlace(undefined));
     this.bees = [];
   }
 
- /**
-   * let a bee exit the current place and move forward
-   * @param bee  A bee object that will exit the current place
-   */
+  /**
+    * let a bee exit the current place and move forward
+    * @param bee  A bee object that will exit the current place
+    */
   exitBee(bee: Bee): void {
     this.removeBee(bee);
     this.exit.addBee(bee);
   }
 
- /**
-   * Remove any insect at this place
-   */
+  /**
+    * Remove any insect at this place
+    */
   removeInsect(insect: Insect) {
     if (insect instanceof Ant) {
       this.removeAnt();
@@ -145,9 +145,9 @@ class Place {
     }
   }
 
- /**
-   * if the current place has water, remove anything except a Scuba ant
-   */
+  /**
+    * if the current place has water, remove anything except a Scuba ant
+    */
   act() {
     if (this.water) {
       if (this.guard) {
@@ -160,9 +160,9 @@ class Place {
   }
 }
 
- /**
-   * A bee hive (base) that stores and manages all info about the bee side of the game
-   */
+/**
+  * A bee hive (base) that stores and manages all info about the bee side of the game
+  */
 class Hive extends Place {
   private waves: { [index: number]: Bee[] } = {}
 
@@ -170,7 +170,7 @@ class Hive extends Place {
    * construct a new hive with the following parameters
    * @param beeArmor A number specifies each bee's armor
    * @param beeDamage  A number specifies the damage each bee will cause to others
-   */    
+   */
   constructor(private beeArmor: number, private beeDamage: number) {
     super('Hive');
   }
@@ -180,7 +180,7 @@ class Hive extends Place {
    * @param attackTurn  Which wave is this attack
    * @param numBees  Number of bees in this wave of attack
    * @returns the new Hive after adding the new wave
-   */                 
+   */
   addWave(attackTurn: number, numBees: number): Hive {
     let wave: Bee[] = [];
     for (let i = 0; i < numBees; i++) {
@@ -196,7 +196,7 @@ class Hive extends Place {
    * @param colony  The Ant Colony object
    * @param currentTurn  A number that specifies which turn of waves is gonna commit the invasion
    * @returns the wave of bees that's gonna invade
-   */ 
+   */
   invade(colony: AntColony, currentTurn: number): Bee[] {
     if (this.waves[currentTurn] !== undefined) {
       this.waves[currentTurn].forEach((bee) => {
@@ -214,9 +214,9 @@ class Hive extends Place {
   }
 }
 
- /**
-   * An ant colony (base) that stores and manages all info about the ant side of the game
-   */
+/**
+  * An ant colony (base) that stores and manages all info about the ant side of the game
+  */
 class AntColony {
   private food: number;
   private places: Place[][] = [];
@@ -266,7 +266,7 @@ class AntColony {
   getEntrances(): Place[] { return this.beeEntrances; }
 
   getQueenPlace(): Place { return this.queenPlace; }
-  
+
   /**
    * bee successfully reaches to the queen
    */
@@ -274,10 +274,10 @@ class AntColony {
 
   getBoosts(): { [index: string]: number } { return this.boosts; }
 
- /**
-   * add a new boost into the colony
-   * @param boost a string representing what type of boost will be added
-   * */
+  /**
+    * add a new boost into the colony
+    * @param boost a string representing what type of boost will be added
+    * */
   addBoost(boost: string) {
     if (this.boosts[boost] === undefined) {
       this.boosts[boost] = 0;
@@ -326,9 +326,9 @@ class AntColony {
     return undefined;
   }
 
- /**
-  * lifecyle call for each Ant object: act according to its specified behavior
-  */
+  /**
+   * lifecyle call for each Ant object: act according to its specified behavior
+   */
   antsAct() {
     this.getAllAnts().forEach((ant) => {
       if (ant instanceof GuardAnt) {
@@ -340,18 +340,18 @@ class AntColony {
     });
   }
 
- /**
-  * lifecyle call for each Bee object: act according to its specified behavior
-  */
+  /**
+   * lifecyle call for each Bee object: act according to its specified behavior
+   */
   beesAct() {
     this.getAllBees().forEach((bee) => {
       bee.act();
     });
   }
 
- /**
-  * lifecyle call for each Place object: act according to its specified behavior
-  */
+  /**
+   * lifecyle call for each Place object: act according to its specified behavior
+   */
   placesAct() {
     for (let i = 0; i < this.places.length; i++) {
       for (let j = 0; j < this.places[i].length; j++) {
@@ -360,9 +360,9 @@ class AntColony {
     }
   }
 
- /**
-  * @returns all the ants on the game board
-  */
+  /**
+   * @returns all the ants on the game board
+   */
   getAllAnts(): Ant[] {
     let ants = [];
     for (let i = 0; i < this.places.length; i++) {
@@ -375,9 +375,9 @@ class AntColony {
     return ants;
   }
 
- /**
-  * @returns all the bees on the game board
-  */
+  /**
+   * @returns all the bees on the game board
+   */
   getAllBees(): Bee[] {
     var bees = [];
     for (var i = 0; i < this.places.length; i++) {
@@ -389,9 +389,9 @@ class AntColony {
   }
 }
 
- /**
-  * The fundamental Ant Game class that manages the game playing at a very high level
-  */
+/**
+ * The fundamental Ant Game class that manages the game playing at a very high level
+ */
 class AntGame {
   private turn: number = 0;
 
@@ -402,10 +402,10 @@ class AntGame {
    */
   constructor(private colony: AntColony, private hive: Hive) { }
 
-   /**
-    * lifecyle call for each turn of the game: 
-    * all the objects act once according to their specified behaviors
-    */
+  /**
+   * lifecyle call for each turn of the game: 
+   * all the objects act once according to their specified behaviors
+   */
   takeTurn() {
     console.log('');
     this.colony.antsAct();
@@ -468,7 +468,7 @@ class AntGame {
    * remove an ant from the game board with the following parameters
    * @param placeCoordinates  A string representing the spot where the ant is gonna be removed
    * @returns error message if any
-   */ 
+   */
   removeAnt(placeCoordinates: string): string {
     try {
       let coords = placeCoordinates.split(',');
@@ -485,7 +485,7 @@ class AntGame {
    * @param boostType  A string representing what type of boost that's gonna be applied
    * @param placeCoordinates  A string representing the spot where the boost is gonna be applied to
    * @returns error message if any
-   */ 
+   */
   boostAnt(boostType: string, placeCoordinates: string): string {
     try {
       let coords = placeCoordinates.split(',');
