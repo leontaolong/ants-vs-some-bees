@@ -1,8 +1,8 @@
 import {AntGame, AntColony, Place, Hive} from './game';
 import {Ant, EaterAnt, GuardAnt} from './ants';
 
-import vorpal = require('vorpal');
-import chalk = require('chalk');
+import vorpal = require('vorpal'); // external lib for command-line interaction
+import chalk = require('chalk');  // external lib for adding styling to plain string
 import _ = require('lodash');
 
 /**
@@ -10,24 +10,34 @@ import _ = require('lodash');
  */
 const Vorpal = vorpal();
 
+/**
+ * print out the current game map
+ * @param game   Current game that is playing
+ */
 export function showMapOf(game:AntGame){
   console.log(getMap(game));
 }
 
+/**
+ * construct the current game map
+ * @param game  Current game that is playing
+ */
 function getMap(game:AntGame) {
   let places:Place[][] = game.getPlaces();
   let tunnelLength = places[0].length;
   let beeIcon = chalk.bgYellow.black('B');
    
   let map = '';
-
+  // add basic game info on the top of the map
   map += chalk.bold('The Colony is under attack!\n');
   map += `Turn: ${game.getTurn()}, Food: ${game.getFood()}, Boosts available: [${game.getBoostNames()}]\n`;
   map += '     '+_.range(0,tunnelLength).join('    ')+'      Hive'+'\n';
-   
+
+  // construct each tunnel on the map 
   for(let i=0; i<places.length; i++){
     map += '    '+Array(tunnelLength+1).join('=====');
     
+    // when construct the first tunnul, also include info about the bee hive (bee counts) on the map
     if(i===0){
       map += '    ';
       let hiveBeeCount = game.getHiveBeesCount();
@@ -38,8 +48,10 @@ function getMap(game:AntGame) {
     }
     map += '\n';
 
+    // tunnel number 
     map += i+')  ';
-      
+
+    // for each tunnel, construct every single place (the sopt that holds an insect)
     for(let j=0; j<places[i].length; j++){ 
       let place:Place = places[i][j];
 
@@ -70,7 +82,11 @@ function getMap(game:AntGame) {
   return map;
 }
 
-
+/**
+ * draw icon for a specific type of ant
+ * @param The ant
+ * @returns the icon for that type of ant, if type doesn't match any, return "?"
+ */
 function iconFor(ant:Ant){
   if(ant === undefined){ return ' ' };
   let icon:string;
@@ -80,6 +96,7 @@ function iconFor(ant:Ant){
     case "Thrower":
       icon = chalk.red('T'); break;
     case "Eater":
+      // mark the Eater ant if it's currently full
       if((<EaterAnt>ant).isFull())
         icon = chalk.yellow.bgMagenta('E');
       else
@@ -100,7 +117,10 @@ function iconFor(ant:Ant){
   return icon;
 }
 
-
+/**
+ * construct the current game map
+ * @param game  Current game that is playing
+ */
 export function play(game:AntGame) {
   Vorpal
     .delimiter(chalk.green('AvB $'))

@@ -1,200 +1,265 @@
-import {AntColony, Place} from './game';
+import { AntColony, Place } from './game';
 
+/**
+ * An abstract skeleton class that has name, armor, place and act
+ * attributes of a type of insect
+ */
 export abstract class Insect {
-  readonly name:string;
+  readonly name: string;
 
-  constructor(protected armor:number, protected place:Place){}
+  constructor(protected armor: number, protected place: Place) { }
 
-  getName():string { return this.name; }
-  getArmor():number { return this.armor; }
+  getName(): string { return this.name; }
+  getArmor(): number { return this.armor; }
   getPlace() { return this.place; }
-  setPlace(place:Place){ this.place = place; }
+  setPlace(place: Place) { this.place = place; }
 
-  reduceArmor(amount:number):boolean {
+  /**
+  * @param amount   A amount of armor strength(in number) that should be reduced 
+  * @returns True if run out of armor and the insect is dead
+  *          False if the insect is still alive */
+  reduceArmor(amount: number): boolean {
     this.armor -= amount;
-    if(this.armor <= 0){
-      console.log(this.toString()+' ran out of armor and expired');
+    if (this.armor <= 0) {
+      console.log(this.toString() + ' ran out of armor and expired');
       this.place.removeInsect(this);
       return true;
     }
     return false;
   }
 
-  abstract act(colony?:AntColony):void;
+  /**
+  * An abstract function that can be specified to represent an act of a particular insect
+  */
+  abstract act(colony?: AntColony): void;
 
-  toString():string {
-    return this.name + '('+(this.place ? this.place.name : '')+')';
+  /**
+   * @returns a string representation of an insect including its name and current place(if any)
+   */
+  toString(): string {
+    return this.name + '(' + (this.place ? this.place.name : '') + ')';
   }
 }
 
-
+/**
+ * A Bee class that extends from Insect
+ */
 export class Bee extends Insect {
-  readonly name:string = 'Bee';
-  private status:string;
+  readonly name: string = 'Bee';
+  private status: string;
 
-  constructor(armor:number, private damage:number, place?:Place){
+  /**
+   * @param damage The damage(in mumber) this bee will cause to others
+   */
+  constructor(armor: number, private damage: number, place?: Place) {
     super(armor, place);
   }
 
-  sting(ant:Ant):boolean{
-    console.log(this+ ' stings '+ant+'!');
+  /**
+   * @param ant An ant this bee is gonna sting
+   * @returns true if the ant stinged is dead, return false otherwise
+   */
+  sting(ant: Ant): boolean {
+    console.log(this + ' stings ' + ant + '!');
     return ant.reduceArmor(this.damage);
   }
 
-  isBlocked():boolean {
+  isBlocked(): boolean {
     return this.place.getAnt() !== undefined;
   }
 
-  setStatus(status:string) { this.status = status; }
+  setStatus(status: string) { this.status = status; }
 
+/**
+ * Particular act of a this type of bee:
+ */
   act() {
-    if(this.isBlocked()){
-      if(this.status !== 'cold') {
+    if (this.isBlocked()) {
+      if (this.status !== 'cold') {
         this.sting(this.place.getAnt());
       }
     }
-    else if(this.armor > 0) {
-      if(this.status !== 'stuck'){
+    else if (this.armor > 0) {
+      if (this.status !== 'stuck') {
         this.place.exitBee(this);
       }
-    }    
+    }
     this.status = undefined;
   }
 }
 
-
+/**
+ * A Ant class that extends from Insect class
+ */
 export abstract class Ant extends Insect {
-  protected boost:string;
-  constructor(armor:number, private foodCost:number = 0, place?:Place) {
+  protected boost: string;
+  constructor(armor: number, private foodCost: number = 0, place?: Place) {
     super(armor, place);
   }
 
-  getFoodCost():number { return this.foodCost; }
-  setBoost(boost:string) { 
-    this.boost = boost; 
-      console.log(this.toString()+' is given a '+boost);
+/**
+ * @returns how much food it costs to deploy this ant
+ */
+  getFoodCost(): number { return this.foodCost; }
+
+  /**
+   * @param boost Give a type of boost, as a string, to this ant
+   */
+  setBoost(boost: string) {
+    this.boost = boost;
+    console.log(this.toString() + ' is given a ' + boost);
   }
 }
 
-
+/**
+ * A Grower ant that has 1 armor and costs 1 food to deploy
+ */
 export class GrowerAnt extends Ant {
-  readonly name:string = "Grower";
+  readonly name: string = "Grower";
   constructor() {
-    super(1,1)
+    super(1, 1)
   }
 
-  act(colony:AntColony) {
+  /**
+   * @param colony This ant's colony (base)
+   * Particular act of Grower ant: 
+   * randomly generate a single food or booster based on the following probability in the colony:
+   *  food - 60%, FlyingLeaf - 70%, StickyLeaf -80%, IcyLeaf - 90%, BugSpray - 95%
+   */
+  act(colony: AntColony) {
     let roll = Math.random();
-    if(roll < 0.6){
+    if (roll < 0.6) {
       colony.increaseFood(1);
-    } else if(roll < 0.7) {
+    } else if (roll < 0.7) {
       colony.addBoost('FlyingLeaf');
-    } else if(roll < 0.8) {
+    } else if (roll < 0.8) {
       colony.addBoost('StickyLeaf');
-    } else if(roll < 0.9) {
+    } else if (roll < 0.9) {
       colony.addBoost('IcyLeaf');
-    } else if(roll < 0.95) {
+    } else if (roll < 0.95) {
       colony.addBoost('BugSpray');
     }
-  }  
+  }
 }
 
-
+/**
+ * A Grower ant that has 1 armor, costs 4 food to deploy, and will cause 1 damage to others
+ */
 export class ThrowerAnt extends Ant {
-  readonly name:string = "Thrower";
-  private damage:number = 1;
+  readonly name: string = "Thrower";
+  private damage: number = 1;
 
   constructor() {
-    super(1,4);
+    super(1, 4);
   }
 
+  /**
+   * Particular act of Thrower ant: 
+   * Throw leafs to the bees and apply boosts if any 
+   */
   act() {
-    if(this.boost !== 'BugSpray'){
+    if (this.boost !== 'BugSpray') {
       let target;
-      if(this.boost === 'FlyingLeaf')
+      // if FlyingLeaf is applied, extend the attacking range to 5
+      // otherwise, attacking rage is 3
+      if (this.boost === 'FlyingLeaf')
         target = this.place.getClosestBee(5);
       else
         target = this.place.getClosestBee(3);
 
-      if(target){
-        console.log(this + ' throws a leaf at '+target);
+      if (target) {
+        console.log(this + ' throws a leaf at ' + target);
         target.reduceArmor(this.damage);
-    
-        if(this.boost === 'StickyLeaf'){
+        // apply StickyLeaf to stick a bee
+        if (this.boost === 'StickyLeaf') {
           target.setStatus('stuck');
           console.log(target + ' is stuck!');
         }
-        if(this.boost === 'IcyLeaf') {
+        // apply IcyLeaf to freeze a bee       
+        if (this.boost === 'IcyLeaf') {
           target.setStatus('cold');
           console.log(target + ' is cold!');
         }
+        // reset boost
         this.boost = undefined;
       }
     }
+
+    // if the BugSpray is applied, damage all bees in the tunnel and the ant itself by 10 armor 
     else {
       console.log(this + ' sprays bug repellant everywhere!');
       let target = this.place.getClosestBee(0);
-      while(target){
+      while (target) {
         target.reduceArmor(10);
         target = this.place.getClosestBee(0);
       }
+      // Also damage itself
       this.reduceArmor(10);
     }
   }
 }
 
-
+/**
+ * An Eater ant that has 2 armor, a stomach and costs 4 food to deploy,
+ */
 export class EaterAnt extends Ant {
-  readonly name:string = "Eater";
-  private turnsEating:number = 0;
-  private stomach:Place = new Place('stomach');
+  readonly name: string = "Eater";
+  private turnsEating: number = 0;
+  private stomach: Place = new Place('stomach');
   constructor() {
-    super(2,4)
+    super(2, 4)
   }
 
-  isFull():boolean {
+  isFull(): boolean {
     return this.stomach.getBees().length > 0;
   }
 
+  /**
+   * Particular act of Eater ant: 
+   * eat a bee and takes 3 turns to digest it
+   */
   act() {
-    console.log("eating: "+this.turnsEating);
-    if(this.turnsEating == 0){
+    console.log("eating: " + this.turnsEating);
+    if (this.turnsEating == 0) {     
+      // first time eating a bee
       console.log("try to eat");
       let target = this.place.getClosestBee(0);
-      if(target) {
-        console.log(this + ' eats '+target+'!');
+      if (target) {
+        console.log(this + ' eats ' + target + '!');
         this.place.removeBee(target);
         this.stomach.addBee(target);
         this.turnsEating = 1;
       }
     } else {
-      if(this.turnsEating > 3){
+      if (this.turnsEating > 3) { 
+        // after three turns, finish digesting a bee
         this.stomach.removeBee(this.stomach.getBees()[0]);
         this.turnsEating = 0;
-      } 
-      else 
+      }
+      else
+        // count each turn after eating a bee
         this.turnsEating++;
     }
-  }  
+  }
 
-  reduceArmor(amount:number):boolean {
+  reduceArmor(amount: number): boolean {
     this.armor -= amount;
-    console.log('armor reduced to: '+this.armor);
-    if(this.armor > 0){
-      if(this.turnsEating == 1){
+    console.log('armor reduced to: ' + this.armor);
+    if (this.armor > 0) {
+      if (this.turnsEating == 1) {
         let eaten = this.stomach.getBees()[0];
         this.stomach.removeBee(eaten);
         this.place.addBee(eaten);
-        console.log(this + ' coughs up '+eaten+'!');
+        console.log(this + ' coughs up ' + eaten + '!');
         this.turnsEating = 3;
       }
     }
-    else if(this.armor <= 0){
-      if(this.turnsEating > 0 && this.turnsEating <= 2){
+    else if (this.armor <= 0) {
+      if (this.turnsEating > 0 && this.turnsEating <= 2) {
         let eaten = this.stomach.getBees()[0];
         this.stomach.removeBee(eaten);
         this.place.addBee(eaten);
-        console.log(this + ' coughs up '+eaten+'!');
+        console.log(this + ' coughs up ' + eaten + '!');
       }
       return super.reduceArmor(amount);
     }
@@ -202,32 +267,34 @@ export class EaterAnt extends Ant {
   }
 }
 
-
+/**
+ * An Scuba ant that has 1 armor, costs 4 food to deploy, and cause 1 damage to others
+ */
 export class ScubaAnt extends Ant {
-  readonly name:string = "Scuba";
-  private damage:number = 1;
+  readonly name: string = "Scuba";
+  private damage: number = 1;
 
   constructor() {
-    super(1,5)
+    super(1, 5)
   }
 
   act() {
-    if(this.boost !== 'BugSpray'){
+    if (this.boost !== 'BugSpray') {
       let target;
-      if(this.boost === 'FlyingLeaf')
+      if (this.boost === 'FlyingLeaf')
         target = this.place.getClosestBee(5);
       else
         target = this.place.getClosestBee(3);
 
-      if(target){
-        console.log(this + ' throws a leaf at '+target);
+      if (target) {
+        console.log(this + ' throws a leaf at ' + target);
         target.reduceArmor(this.damage);
-    
-        if(this.boost === 'StickyLeaf'){
+
+        if (this.boost === 'StickyLeaf') {
           target.setStatus('stuck');
           console.log(target + ' is stuck!');
         }
-        if(this.boost === 'IcyLeaf') {
+        if (this.boost === 'IcyLeaf') {
           target.setStatus('cold');
           console.log(target + ' is cold!');
         }
@@ -237,7 +304,7 @@ export class ScubaAnt extends Ant {
     else {
       console.log(this + ' sprays bug repellant everywhere!');
       let target = this.place.getClosestBee(0);
-      while(target){
+      while (target) {
         target.reduceArmor(10);
         target = this.place.getClosestBee(0);
       }
@@ -246,17 +313,24 @@ export class ScubaAnt extends Ant {
   }
 }
 
-
+/**
+ * An Guard ant that has 2 armor and costs 4 food to deploy
+ */
 export class GuardAnt extends Ant {
-  readonly name:string = "Guard";
+  readonly name: string = "Guard";
 
   constructor() {
-    super(2,4)
+    super(2, 4)
   }
 
-  getGuarded():Ant {
+  /**
+   * @returns the current ant that's been protected
+   */
+  getGuarded(): Ant {
     return this.place.getGuardedAnt();
   }
-
-  act() {}
+  /**
+   * The Guard ant doesn't have any other particular act
+   */
+  act() { }
 }
