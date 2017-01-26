@@ -123,8 +123,8 @@ export class GrowerAnt extends Ant {
   /**
    * @param colony This ant's colony (base)
    * Particular act of Grower ant: 
-   * randomly generate a single food or booster based on the following probability in the colony:
-   *  food - 60%, FlyingLeaf - 70%, StickyLeaf -80%, IcyLeaf - 90%, BugSpray - 95%
+   * randomly generate a single food or boost in the colony based on the following probability: 
+   *  food - 60%, FlyingLeaf - 10%, StickyLeaf -10%, IcyLeaf - 10%, BugSpray - 5%
    */
   act(colony: AntColony) {
     let roll = Math.random();
@@ -143,7 +143,7 @@ export class GrowerAnt extends Ant {
 }
 
 /**
- * A Grower ant that has 1 armor, costs 4 food to deploy, and will cause 1 damage to others
+ * A Thrower ant that has 1 armor, costs 4 food to deploy, and will cause 1 damage to others
  */
 export class ThrowerAnt extends Ant {
   readonly name: string = "Thrower";
@@ -241,12 +241,17 @@ export class EaterAnt extends Ant {
         this.turnsEating++;
     }
   }
-
+  /**
+   * handle some cases where the Eater is under attack while digesting bee
+   * @param amount The amount of armor that will be reduced (in mumber)
+   * @returns True if the current Eater is dead, or false otherwise
+   */
   reduceArmor(amount: number): boolean {
     this.armor -= amount;
     console.log('armor reduced to: ' + this.armor);
     if (this.armor > 0) {
       if (this.turnsEating == 1) {
+        // after the attack, if the Eater still has armor, it will cough up the eaten bee
         let eaten = this.stomach.getBees()[0];
         this.stomach.removeBee(eaten);
         this.place.addBee(eaten);
@@ -256,6 +261,8 @@ export class EaterAnt extends Ant {
     }
     else if (this.armor <= 0) {
       if (this.turnsEating > 0 && this.turnsEating <= 2) {
+        // after the attack, if the Eater has no armor left, it will die
+        // if it's digesting, it will cough up the eaten ant and then die
         let eaten = this.stomach.getBees()[0];
         this.stomach.removeBee(eaten);
         this.place.addBee(eaten);
@@ -324,7 +331,7 @@ export class GuardAnt extends Ant {
   }
 
   /**
-   * @returns the current ant that's been protected
+   * @returns the current Guard ant 
    */
   getGuarded(): Ant {
     return this.place.getGuardedAnt();

@@ -12,7 +12,7 @@ const Vorpal = vorpal();
 
 /**
  * print out the current game map
- * @param game   Current game that is playing
+ * @param game   Current game object that is playing
  */
 export function showMapOf(game:AntGame){
   console.log(getMap(game));
@@ -20,7 +20,7 @@ export function showMapOf(game:AntGame){
 
 /**
  * construct the current game map
- * @param game  Current game that is playing
+ * @param game  Current game object that is playing
  */
 function getMap(game:AntGame) {
   let places:Place[][] = game.getPlaces();
@@ -70,7 +70,7 @@ function getMap(game:AntGame) {
     for(let j=0; j<places[i].length; j++){
       let place = places[i][j];
       if(place.isWater()){
-        map += chalk.bgCyan('~~~~')+' ';
+        map += chalk.bgCyan('~~~~')+' '; // draw the water on the game board if the place has water 
       } else {
         map += '==== ';
       }
@@ -84,7 +84,7 @@ function getMap(game:AntGame) {
 
 /**
  * draw icon for a specific type of ant
- * @param The ant
+ * @param ant  The Ant object
  * @returns the icon for that type of ant, if type doesn't match any, return "?"
  */
 function iconFor(ant:Ant){
@@ -118,8 +118,8 @@ function iconFor(ant:Ant){
 }
 
 /**
- * play the game: enable the command-line based user interaction with this game
- * @param game  Current game that is playing
+ * play the game: enable the command-line based user interaction
+ * @param game  Current game object that is playing
  */
 export function play(game:AntGame) {
   // the very first time print out the user interface of the game (the game board)
@@ -188,7 +188,7 @@ export function play(game:AntGame) {
       game.takeTurn();
       Vorpal.log(getMap(game));
       let won:boolean = game.gameIsWon();
-      // end the game with win or lose message
+      // if there's a result coming out, end the game with a win or lose message
       if(won === true){
         Vorpal.log(chalk.green('Yaaaay---\nAll bees are vanquished. You win!\n'));
       }
