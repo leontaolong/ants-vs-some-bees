@@ -162,49 +162,54 @@ var EaterAnt = (function (_super) {
     __extends(EaterAnt, _super);
     function EaterAnt() {
         var _this = _super.call(this, 2, 4) || this;
+        _this.EMPTY = 1;
+        _this.SWALLOW = 2;
+        _this.DIGESTING_TURN_1 = 3;
+        _this.DIGESTING_TURN_2 = 4;
+        _this.DIGESTING_TURN_3 = 5;
+        _this.state = _this.EMPTY;
         _this.name = "Eater";
-        _this.turnsEating = 0;
         _this.stomach = new game_1.Place('stomach');
         return _this;
     }
-    EaterAnt.prototype.isFull = function () {
-        return this.stomach.getBees().length > 0;
-    };
     EaterAnt.prototype.act = function () {
-        console.log("eating: " + this.turnsEating);
-        if (this.turnsEating == 0) {
+        console.log("eating: " + this.state);
+        if (this.state == this.EMPTY) {
             console.log("try to eat");
             var target = this.place.getClosestBee(0);
             if (target) {
                 console.log(this + ' eats ' + target + '!');
                 this.place.removeBee(target);
                 this.stomach.addBee(target);
-                this.turnsEating = 1;
+                this.state = this.SWALLOW;
             }
         }
+        else if (this.state == this.DIGESTING_TURN_1) {
+            this.state = this.DIGESTING_TURN_2;
+        }
+        else if (this.state == this.DIGESTING_TURN_2) {
+            this.state = this.DIGESTING_TURN_3;
+        }
         else {
-            if (this.turnsEating > 3) {
-                this.stomach.removeBee(this.stomach.getBees()[0]);
-                this.turnsEating = 0;
-            }
-            else
-                this.turnsEating++;
+            this.stomach.removeBee(this.stomach.getBees()[0]);
+            this.state = this.EMPTY;
         }
     };
     EaterAnt.prototype.reduceArmor = function (amount) {
         this.armor -= amount;
         console.log('armor reduced to: ' + this.armor);
         if (this.armor > 0) {
-            if (this.turnsEating == 1) {
+            if (this.state = this.SWALLOW) {
                 var eaten = this.stomach.getBees()[0];
                 this.stomach.removeBee(eaten);
                 this.place.addBee(eaten);
                 console.log(this + ' coughs up ' + eaten + '!');
-                this.turnsEating = 3;
+                this.state = this.DIGESTING_TURN_2;
             }
+            return false;
         }
-        else if (this.armor <= 0) {
-            if (this.turnsEating > 0 && this.turnsEating <= 2) {
+        else {
+            if (this.state == this.SWALLOW || this.state == this.DIGESTING_TURN_1) {
                 var eaten = this.stomach.getBees()[0];
                 this.stomach.removeBee(eaten);
                 this.place.addBee(eaten);
@@ -212,7 +217,6 @@ var EaterAnt = (function (_super) {
             }
             return _super.prototype.reduceArmor.call(this, amount);
         }
-        return false;
     };
     return EaterAnt;
 }(Ant));

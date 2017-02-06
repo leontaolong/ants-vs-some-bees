@@ -146,19 +146,19 @@ interface GrowFunction {
   (colony: AntColony): void;
 }
 
-let growBoostFunction:GrowFunction = function (colony: AntColony) {
-    let roll = Math.random();
-    if (roll < 0.6) {
-      colony.increaseFood(1);
-    } else if (roll < 0.7) {
-      colony.addBoost('FlyingLeaf');
-    } else if (roll < 0.8) {
-      colony.addBoost('StickyLeaf');
-    } else if (roll < 0.9) {
-      colony.addBoost('IcyLeaf');
-    } else if (roll < 0.95) {
-      colony.addBoost('BugSpray');
-    }
+let growBoostFunction: GrowFunction = function (colony: AntColony) {
+  let roll = Math.random();
+  if (roll < 0.6) {
+    colony.increaseFood(1);
+  } else if (roll < 0.7) {
+    colony.addBoost('FlyingLeaf');
+  } else if (roll < 0.8) {
+    colony.addBoost('StickyLeaf');
+  } else if (roll < 0.9) {
+    colony.addBoost('IcyLeaf');
+  } else if (roll < 0.95) {
+    colony.addBoost('BugSpray');
+  }
 }
 
 /**
@@ -230,15 +230,20 @@ let appyBoostFunction: BoostFunction = function (ant: Ant, boost: string, damage
  * An Eater ant that has 2 armor, a stomach and costs 4 food to deploy,
  */
 export class EaterAnt extends Ant {
+  readonly EMPTY = 1;
+  readonly SWALLOW = 2
+  readonly DIGESTING_TURN_1 = 3;
+  readonly DIGESTING_TURN_2 = 4;
+  readonly DIGESTING_TURN_3 = 5;
+
+  private state: number = this.EMPTY;
+
   readonly name: string = "Eater";
-  private turnsEating: number = 0;
+  private eaten: Bee;
   private stomach: Place = new Place('stomach');
+
   constructor() {
     super(2, 4)
-  }
-
-  isFull(): boolean {
-    return this.stomach.getBees().length > 0;
   }
 
   /**
@@ -246,26 +251,23 @@ export class EaterAnt extends Ant {
    * eat a bee and takes 3 turns to digest it
    */
   act() {
-    console.log("eating: " + this.turnsEating);
-    if (this.turnsEating == 0) {
-      // first time eating a bee
+    console.log("eating: " + this.state);
+    if (this.state == this.EMPTY) {
       console.log("try to eat");
       let target = this.place.getClosestBee(0);
       if (target) {
         console.log(this + ' eats ' + target + '!');
         this.place.removeBee(target);
         this.stomach.addBee(target);
-        this.turnsEating = 1;
+        this.state = this.SWALLOW;
       }
+    } else if (this.state == this.DIGESTING_TURN_1) {
+      this.state = this.DIGESTING_TURN_2
+    } else if (this.state == this.DIGESTING_TURN_2) {
+      this.state = this.DIGESTING_TURN_3
     } else {
-      if (this.turnsEating > 3) {
-        // after three turns, finish digesting a bee
-        this.stomach.removeBee(this.stomach.getBees()[0]);
-        this.turnsEating = 0;
-      }
-      else
-        // count each turn after eating a bee
-        this.turnsEating++;
+      this.stomach.removeBee(this.stomach.getBees()[0]);
+      this.state = this.EMPTY;
     }
   }
   /**
@@ -277,17 +279,18 @@ export class EaterAnt extends Ant {
     this.armor -= amount;
     console.log('armor reduced to: ' + this.armor);
     if (this.armor > 0) {
-      if (this.turnsEating == 1) {
+      if (this.state = this.SWALLOW) {
         // after the attack, if the Eater still has armor, it will cough up the eaten bee
         let eaten = this.stomach.getBees()[0];
         this.stomach.removeBee(eaten);
         this.place.addBee(eaten);
         console.log(this + ' coughs up ' + eaten + '!');
-        this.turnsEating = 3;
+        this.state = this.DIGESTING_TURN_2;
       }
+      return false;
     }
-    else if (this.armor <= 0) {
-      if (this.turnsEating > 0 && this.turnsEating <= 2) {
+    else {
+      if (this.state == this.SWALLOW || this.state == this.DIGESTING_TURN_1) {
         // after the attack, if the Eater has no armor left, it will die
         // if it's digesting, it will cough up the eaten ant and then die
         let eaten = this.stomach.getBees()[0];
@@ -297,7 +300,6 @@ export class EaterAnt extends Ant {
       }
       return super.reduceArmor(amount);
     }
-    return false;
   }
 }
 
