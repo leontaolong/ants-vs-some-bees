@@ -23,13 +23,10 @@ var Place = (function () {
     Place.prototype.setEntrance = function (place) { this.entrance = place; };
     Place.prototype.isWater = function () { return this.water; };
     Place.prototype.getAnt = function () {
-        if (this.guard)
-            return this.guard;
+        if (this.ant !== undefined && this.ant.getGuard() != undefined)
+            return this.ant.getGuard();
         else
             return this.ant;
-    };
-    Place.prototype.getGuardedAnt = function () {
-        return this.ant;
     };
     Place.prototype.getBees = function () { return this.bees; };
     Place.prototype.getClosestBee = function (maxDistance, minDistance) {
@@ -44,31 +41,32 @@ var Place = (function () {
         return undefined;
     };
     Place.prototype.addAnt = function (ant) {
-        if (ant instanceof ants_1.GuardAnt) {
-            if (this.guard === undefined) {
-                this.guard = ant;
-                this.guard.setPlace(this);
-                return true;
-            }
-        }
-        else if (this.ant === undefined) {
+        if (this.ant === undefined) {
             this.ant = ant;
             this.ant.setPlace(this);
+            return true;
+        }
+        else if (ant instanceof ants_1.GuardAnt && !(this.ant instanceof ants_1.GuardAnt) && this.ant.getGuard() === undefined) {
+            ant.setGuarded(this.ant);
+            this.ant.setGuard(ant);
             return true;
         }
         return false;
     };
     Place.prototype.removeAnt = function () {
-        if (this.guard !== undefined) {
-            var guard = this.guard;
-            this.guard = undefined;
-            return guard;
+        if (this.ant !== undefined) {
+            var toBeRemoved = void 0;
+            if (this.ant.getGuard() !== undefined) {
+                toBeRemoved = this.ant.getGuard();
+                this.ant.setGuard(undefined);
+            }
+            else {
+                toBeRemoved = this.ant;
+                this.ant = undefined;
+            }
+            return toBeRemoved;
         }
-        else {
-            var ant = this.ant;
-            this.ant = undefined;
-            return ant;
-        }
+        return undefined;
     };
     Place.prototype.addBee = function (bee) {
         this.bees.push(bee);
@@ -99,9 +97,6 @@ var Place = (function () {
     };
     Place.prototype.act = function () {
         if (this.water) {
-            if (this.guard) {
-                this.removeAnt();
-            }
             if (!(this.ant instanceof ants_1.ScubaAnt)) {
                 this.removeAnt();
             }
@@ -215,11 +210,6 @@ var AntColony = (function () {
     AntColony.prototype.antsAct = function () {
         var _this = this;
         this.getAllAnts().forEach(function (ant) {
-            if (ant instanceof ants_1.GuardAnt) {
-                var guarded = ant.getGuarded();
-                if (guarded)
-                    guarded.act(_this);
-            }
             ant.act(_this);
         });
     };

@@ -105,8 +105,9 @@ function iconFor(ant: Ant) {
     case "Scuba":
       icon = chalk.cyan('S'); break;
     case "Guard":
+    console.log((<GuardAnt>ant).getGuarded());
       let guarded: Ant = (<GuardAnt>ant).getGuarded();
-      if (guarded) {
+      if (guarded !== undefined) {
         icon = chalk.underline(iconFor(guarded)); break;
       } else {
         icon = chalk.underline('x'); break;

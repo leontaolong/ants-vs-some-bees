@@ -5,7 +5,6 @@ import { Insect, Bee, Ant, GrowerAnt, ThrowerAnt, EaterAnt, ScubaAnt, GuardAnt }
  */
 class Place {
   protected ant: Ant;
-  protected guard: GuardAnt;
   protected bees: Bee[] = [];
 
   /**
@@ -28,14 +27,10 @@ class Place {
    * @returns the ant that's currently at this place
    */
   getAnt(): Ant {
-    if (this.guard)
-      return this.guard;
-    else
-      return this.ant;
-  }
-
-  getGuardedAnt(): Ant {
-    return this.ant;
+      if (this.ant !== undefined && this.ant.getGuard() != undefined)
+        return this.ant.getGuard();
+      else
+        return this.ant;
   }
 
   getBees(): Bee[] { return this.bees; }
@@ -62,20 +57,17 @@ class Place {
     * @returns true if the ant has been successfully added, otherwise false
     */
   addAnt(ant: Ant): boolean {
-    if (ant instanceof GuardAnt) { // if the current ant is a Guard ant
-      if (this.guard === undefined) { // if the place is currently empty
-        this.guard = ant;
-        this.guard.setPlace(this);
-        return true;
-      }
-    }
-    else
+    // if (ant instanceof GuardAnt) { // if the current ant is a Guard ant
       if (this.ant === undefined) { // if the place is currently empty
         this.ant = ant;
         this.ant.setPlace(this);
         return true;
+      } else if (ant instanceof GuardAnt && !(this.ant instanceof GuardAnt) && this.ant.getGuard() === undefined) {
+        ant.setGuarded(this.ant);
+        this.ant.setGuard(ant);
+        return true; 
       }
-    return false;
+      return false;
   }
 
   /**
@@ -83,16 +75,18 @@ class Place {
     * @returns the ant that has been removed
     */
   removeAnt(): Ant {
-    if (this.guard !== undefined) {
-      let guard = this.guard;
-      this.guard = undefined;
-      return guard;
+    if (this.ant !== undefined) {
+      let toBeRemoved;
+      if (this.ant.getGuard() !== undefined) {
+        toBeRemoved = this.ant.getGuard();
+        this.ant.setGuard(undefined);
+      } else {
+        toBeRemoved = this.ant;
+        this.ant = undefined;
+      }
+      return toBeRemoved;
     }
-    else {
-      let ant = this.ant;
-      this.ant = undefined;
-      return ant;
-    }
+    return undefined;
   }
 
   /**
@@ -150,9 +144,6 @@ class Place {
     */
   act() {
     if (this.water) {
-      if (this.guard) {
-        this.removeAnt();
-      }
       if (!(this.ant instanceof ScubaAnt)) {
         this.removeAnt();
       }
@@ -331,11 +322,6 @@ class AntColony {
    */
   antsAct() {
     this.getAllAnts().forEach((ant) => {
-      if (ant instanceof GuardAnt) {
-        let guarded = ant.getGuarded();
-        if (guarded)
-          guarded.act(this);
-      }
       ant.act(this);
     });
   }

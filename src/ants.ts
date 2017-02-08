@@ -100,6 +100,7 @@ export class Bee extends Insect {
  */
 export abstract class Ant extends Insect {
   protected boost: string;
+  protected guard: GuardAnt;
 
   /**
    * construct an Ant object with the following parameters
@@ -119,6 +120,14 @@ export abstract class Ant extends Insect {
   setBoost(boost: string) {
     this.boost = boost;
     console.log(this.toString() + ' is given a ' + boost);
+  }
+
+  getGuard(): GuardAnt {
+    return this.guard;
+  }
+
+  setGuard(guard: GuardAnt) {
+    this.guard = guard;
   }
 }
 
@@ -246,6 +255,10 @@ export class EaterAnt extends Ant {
     super(2, 4)
   }
 
+  isFull(): boolean {
+      return this.stomach.getBees().length > 0;
+  }
+
   /**
    * Particular act of Eater ant: 
    * eat a bee and takes 3 turns to digest it
@@ -318,37 +331,6 @@ export class ScubaAnt extends Ant {
    * similar behavior with Thrower ant
    */
   act() {
-    // if (this.boost !== 'BugSpray') {
-    //   let target;
-    //   if (this.boost === 'FlyingLeaf')
-    //     target = this.place.getClosestBee(5);
-    //   else
-    //     target = this.place.getClosestBee(3);
-
-    //   if (target) {
-    //     console.log(this + ' throws a leaf at ' + target);
-    //     target.reduceArmor(this.damage);
-
-    //     if (this.boost === 'StickyLeaf') {
-    //       target.setStatus('stuck');
-    //       console.log(target + ' is stuck!');
-    //     }
-    //     if (this.boost === 'IcyLeaf') {
-    //       target.setStatus('cold');
-    //       console.log(target + ' is cold!');
-    //     }
-    //     this.boost = undefined;
-    //   }
-    // }
-    // else {
-    //   console.log(this + ' sprays bug repellant everywhere!');
-    //   let target = this.place.getClosestBee(0);
-    //   while (target) {
-    //     target.reduceArmor(10);
-    //     target = this.place.getClosestBee(0);
-    //   }
-    //   this.reduceArmor(10);
-    // }
     appyBoostFunction(this, this.boost, this.damage, this.place);
   }
 }
@@ -358,6 +340,7 @@ export class ScubaAnt extends Ant {
  */
 export class GuardAnt extends Ant {
   readonly name: string = "Guard";
+  private guarded: Ant;
 
   constructor() {
     super(2, 4)
@@ -367,7 +350,11 @@ export class GuardAnt extends Ant {
    * @returns the current Guard ant 
    */
   getGuarded(): Ant {
-    return this.place.getGuardedAnt();
+    return this.guarded;
+  }
+
+  setGuarded(guarded: Ant) {
+    this.guarded = guarded;
   }
   /**
    * The Guard ant doesn't have any other particular behavior except guarding

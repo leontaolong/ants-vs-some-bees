@@ -78,8 +78,9 @@ function iconFor(ant) {
             icon = chalk.cyan('S');
             break;
         case "Guard":
+            console.log(ant.getGuarded());
             var guarded = ant.getGuarded();
-            if (guarded) {
+            if (guarded !== undefined) {
                 icon = chalk.underline(iconFor(guarded));
                 break;
             }

@@ -79,6 +79,12 @@ var Ant = (function (_super) {
         this.boost = boost;
         console.log(this.toString() + ' is given a ' + boost);
     };
+    Ant.prototype.getGuard = function () {
+        return this.guard;
+    };
+    Ant.prototype.setGuard = function (guard) {
+        this.guard = guard;
+    };
     return Ant;
 }(Insect));
 exports.Ant = Ant;
@@ -172,6 +178,9 @@ var EaterAnt = (function (_super) {
         _this.stomach = new game_1.Place('stomach');
         return _this;
     }
+    EaterAnt.prototype.isFull = function () {
+        return this.stomach.getBees().length > 0;
+    };
     EaterAnt.prototype.act = function () {
         console.log("eating: " + this.state);
         if (this.state == this.EMPTY) {
@@ -243,7 +252,10 @@ var GuardAnt = (function (_super) {
         return _this;
     }
     GuardAnt.prototype.getGuarded = function () {
-        return this.place.getGuardedAnt();
+        return this.guarded;
+    };
+    GuardAnt.prototype.setGuarded = function (guarded) {
+        this.guarded = guarded;
     };
     GuardAnt.prototype.act = function () { };
     return GuardAnt;
