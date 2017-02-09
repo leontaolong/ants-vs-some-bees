@@ -1,4 +1,4 @@
-import { AntColony, Place } from './game';
+import { AntColony, Place, GamePlace } from './game';
 
 /**
  * An abstract skeleton class that has name, armor, place and act
@@ -12,7 +12,7 @@ export abstract class Insect {
    * @param armor  How mamy armors (in number) does this insect have
    * @param place  The place where the insect will be at
    */
-  constructor(protected armor: number, protected place: Place) { }
+  constructor(protected armor: number, protected place: GamePlace) { }
 
   getName(): string { return this.name; }
   getArmor(): number { return this.armor; }
@@ -42,7 +42,7 @@ export abstract class Insect {
    * @returns a string representation of an insect including its name and current place(if any)
    */
   toString(): string {
-    return this.name + '(' + (this.place ? this.place.name : '') + ')';
+    return this.name + '(' + (this.place ? this.place.getName() : '') + ')';
   }
 }
 
@@ -58,7 +58,7 @@ export class Bee extends Insect {
    * @param armor   How mamy armors (in number) does this Bee have
    * @param damage  The damage (in mumber) this bee will cause to others
    */
-  constructor(armor: number, private damage: number, place?: Place) {
+  constructor(armor: number, private damage: number, place?: GamePlace) {
     super(armor, place);
   }
 
@@ -108,7 +108,7 @@ export abstract class Ant extends Insect {
    * @param foodCost  How much food it costs to deploy this ant
    * @param place (optional)  The place where the ant will be at
    */
-  constructor(armor: number, private foodCost: number = 0, place?: Place) {
+  constructor(armor: number, private foodCost: number = 0, place?: GamePlace) {
     super(armor, place);
   }
 
@@ -186,54 +186,97 @@ export class ThrowerAnt extends Ant {
    * Throw leafs to the bees and apply boosts if any 
    */
   act() {
-    appyBoostFunction(this, this.boost, this.damage, this.place);
+    console.log("attack1");
+    attackAction(this, this.boost, this.place, this.damage);
+    console.log("attack2");
   }
 }
 
-interface BoostFunction {
-  (ant: Ant, boost: string, damage: number, place: Place): void;
+
+function attackAction(ant: Ant, boost: String, place: GamePlace, damage:number) {
+  console.log("attack3");
+  if (boost == "FlyingLeaf") {
+    let boostAdding: BoostSetter = new FlyingLeafSetter();
+    boostAdding.act(place, ant, damage);
+  } else if (boost == "StickyLeaf") {
+    let boostAdding: BoostSetter = new StickyLeafSetter();
+    boostAdding.act(place, ant, damage);
+  } else if (boost == "IcyLeaf") {
+    let boostAdding: BoostSetter = new StickyLeafSetter();
+    boostAdding.act(place, ant, damage);
+  } else if (boost == "BugSpray") {
+    let boostAdding: BoostSetter = new BugSpraySetter();
+    boostAdding.act(place, ant, damage);
+  } else {
+    let boostAdding: BoostSetter = new NonBoostSetter();
+    boostAdding.act(place, ant, damage);
+  }
+  ant.setBoost(undefined);
 }
 
-let appyBoostFunction: BoostFunction = function (ant: Ant, boost: string, damage: number, place: Place) {
-  if (boost !== 'BugSpray') {
-    let target;
-    // if FlyingLeaf is applied, extend the attacking range to 5
-    // otherwise, attacking rage is 3
-    if (boost === 'FlyingLeaf')
-      target = place.getClosestBee(5);
-    else
-      target = place.getClosestBee(3);
 
+interface BoostSetter {
+  act(place: GamePlace, ant: Ant, damage:number);
+}
+
+class NonBoostSetter implements BoostSetter {
+  act(place: GamePlace, ant: Ant, damage: number) {
+    let target = place.getClosestBee(3);
+    console.log(ant + ' throws a leaf at ' + target);
+    if (target)
+    target.reduceArmor(damage);
+  }
+}
+
+class BugSpraySetter implements BoostSetter {
+  act(place: GamePlace, ant: Ant, damage: number) {
+    console.log(ant + ' sprays bug repellant everywhere!');
+    let target = place.getClosestBee(0);
+    while (target) {
+      target.reduceArmor(10);
+      target = place.getClosestBee(0);
+    }
+    ant.reduceArmor(10);
+  }
+}
+
+class FlyingLeafSetter implements BoostSetter {
+  act(place: GamePlace, ant: Ant, damage: number) {
+    let target = place.getClosestBee(5);
     if (target) {
       console.log(ant + ' throws a leaf at ' + target);
       target.reduceArmor(damage);
-      // apply StickyLeaf to stick a bee
-      if (boost === 'StickyLeaf') {
-        target.setStatus('stuck');
-        console.log(target + ' is stuck!');
-      }
-      // apply IcyLeaf to freeze a bee       
-      if (boost === 'IcyLeaf') {
-        target.setStatus('cold');
-        console.log(target + ' is cold!');
-      }
-      // reset boost to null
-      boost = undefined;
     }
-  }
-
-  // if the BugSpray is applied, damage all bees in the tunnel and the ant itself by 10 armor 
-  else {
-    console.log(this + ' sprays bug repellant everywhere!');
-    let target = this.place.getClosestBee(0);
-    while (target) {
-      target.reduceArmor(10);
-      target = this.place.getClosestBee(0);
-    }
-    // also damage itself
-    this.reduceArmor(10);
   }
 }
+
+class StickyLeafSetter implements BoostSetter {
+  act(place: GamePlace, ant: Ant, damage: number) {
+    let target = place.getClosestBee(3);
+    if (target) {
+      console.log(ant + ' throws a leaf at ' + target);
+      target.reduceArmor(damage);
+      target.setStatus('stuck');
+      console.log(target + ' is stuck!');
+    }
+  }
+}
+
+class IcyLeaf implements BoostSetter {
+  act(place: GamePlace, ant: Ant, damage: number) {
+    let target = place.getClosestBee(3);
+    if (target) {
+      console.log(ant + ' throws a leaf at ' + target);
+      target.reduceArmor(damage);
+      // applies IcyLeaf boost on this Scuba ant.
+      target.setStatus('cold');
+      console.log(target + ' is cold!');
+    }
+  }
+}
+
+
+
 
 /**
  * An Eater ant that has 2 armor, a stomach and costs 4 food to deploy,
@@ -331,7 +374,7 @@ export class ScubaAnt extends Ant {
    * similar behavior with Thrower ant
    */
   act() {
-    appyBoostFunction(this, this.boost, this.damage, this.place);
+    attackAction(this, this.boost, this.place, this.damage);
   }
 }
 

@@ -17,7 +17,6 @@ export abstract class GamePlace {
   abstract getExit();
   abstract getClosestBee(maxDistance: number, minDistance?: number): Bee;
   abstract addAnt(ant: Ant): boolean;
-
 }
 /**
  * a general Place class that stores and manages information about a particular place on the game board
