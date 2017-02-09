@@ -10,18 +10,28 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var ants_1 = require("./ants");
-var Place = (function () {
-    function Place(name, water, exit, entrance) {
-        if (water === void 0) { water = false; }
-        this.name = name;
-        this.water = water;
-        this.exit = exit;
-        this.entrance = entrance;
-        this.bees = [];
+var GamePlace = (function () {
+    function GamePlace() {
+    }
+    return GamePlace;
+}());
+exports.GamePlace = GamePlace;
+var Place = (function (_super) {
+    __extends(Place, _super);
+    function Place(name, exit, entrance) {
+        var _this = _super.call(this) || this;
+        _this.name = name;
+        _this.exit = exit;
+        _this.entrance = entrance;
+        _this.bees = [];
+        return _this;
     }
     Place.prototype.getExit = function () { return this.exit; };
     Place.prototype.setEntrance = function (place) { this.entrance = place; };
-    Place.prototype.isWater = function () { return this.water; };
+    Place.prototype.getEntrance = function () { return this.entrance; };
+    Place.prototype.getName = function () {
+        return this.name;
+    };
     Place.prototype.getAnt = function () {
         if (this.ant !== undefined && this.ant.getGuard() != undefined)
             return this.ant.getGuard();
@@ -33,10 +43,10 @@ var Place = (function () {
         if (minDistance === void 0) { minDistance = 0; }
         var p = this;
         for (var dist = 0; p !== undefined && dist <= maxDistance; dist++) {
-            if (dist >= minDistance && p.bees.length > 0) {
-                return p.bees[0];
+            if (dist >= minDistance && p.getBees().length > 0) {
+                return p.getBees()[0];
             }
-            p = p.entrance;
+            p = p.getEntrance();
         }
         return undefined;
     };
@@ -95,16 +105,69 @@ var Place = (function () {
             this.removeBee(insect);
         }
     };
-    Place.prototype.act = function () {
-        if (this.water) {
-            if (!(this.ant instanceof ants_1.ScubaAnt)) {
-                this.removeAnt();
-            }
-        }
-    };
+    Place.prototype.act = function () { };
     return Place;
-}());
+}(GamePlace));
 exports.Place = Place;
+var PlaceDecorator = (function (_super) {
+    __extends(PlaceDecorator, _super);
+    function PlaceDecorator(decorated) {
+        var _this = _super.call(this) || this;
+        _this.decorated = decorated;
+        return _this;
+    }
+    return PlaceDecorator;
+}(GamePlace));
+var WaterPlaceDecorator = (function (_super) {
+    __extends(WaterPlaceDecorator, _super);
+    function WaterPlaceDecorator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    WaterPlaceDecorator.prototype.getAnt = function () {
+        return this.decorated.getAnt();
+    };
+    WaterPlaceDecorator.prototype.getBees = function () {
+        return this.decorated.getBees();
+    };
+    WaterPlaceDecorator.prototype.addBee = function (bee) {
+        this.decorated.addBee(bee);
+    };
+    WaterPlaceDecorator.prototype.setEntrance = function (curr) {
+        this.decorated.setEntrance(curr);
+    };
+    ;
+    WaterPlaceDecorator.prototype.getEntrance = function () {
+        return this.decorated.getEntrance();
+    };
+    WaterPlaceDecorator.prototype.exitBee = function (bee) {
+        this.decorated.exitBee(bee);
+    };
+    WaterPlaceDecorator.prototype.removeInsect = function (insect) {
+        this.decorated.removeInsect(insect);
+    };
+    WaterPlaceDecorator.prototype.getClosestBee = function (maxDistance, minDistance) {
+        if (minDistance === void 0) { minDistance = 0; }
+        return this.decorated.getClosestBee(maxDistance, minDistance);
+    };
+    WaterPlaceDecorator.prototype.removeBee = function (bee) {
+        this.decorated.removeBee(bee);
+    };
+    WaterPlaceDecorator.prototype.getName = function () {
+        return this.decorated.getName();
+    };
+    WaterPlaceDecorator.prototype.getExit = function () {
+        return this.decorated.getExit();
+    };
+    WaterPlaceDecorator.prototype.addAnt = function (ant) {
+        return this.decorated.addAnt(ant);
+    };
+    WaterPlaceDecorator.prototype.act = function () {
+        if (!(this.decorated.getAnt() instanceof ants_1.ScubaAnt))
+            this.decorated.removeAnt();
+    };
+    return WaterPlaceDecorator;
+}(PlaceDecorator));
+exports.WaterPlaceDecorator = WaterPlaceDecorator;
 var Hive = (function (_super) {
     __extends(Hive, _super);
     function Hive(beeArmor, beeDamage) {
@@ -155,13 +218,12 @@ var AntColony = (function () {
             var curr = this.queenPlace;
             this.places[tunnel] = [];
             for (var step = 0; step < tunnelLength; step++) {
-                var typeName = 'tunnel';
-                if (moatFrequency !== 0 && (step + 1) % moatFrequency === 0) {
-                    typeName = 'water';
-                }
                 prev = curr;
                 var locationId = tunnel + ',' + step;
-                curr = new Place(typeName + '[' + locationId + ']', typeName == 'water', prev);
+                if (moatFrequency !== 0 && (step + 1) % moatFrequency === 0)
+                    curr = new WaterPlaceDecorator(new Place("tunnel" + '[' + locationId + ']', prev));
+                else
+                    curr = new Place("tunnel" + '[' + locationId + ']', prev);
                 prev.setEntrance(curr);
                 this.places[tunnel][step] = curr;
             }

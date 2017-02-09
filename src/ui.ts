@@ -1,4 +1,4 @@
-import { AntGame, AntColony, Place, Hive } from './game';
+import { AntGame, AntColony, Place, Hive, WaterPlaceDecorator, GamePlace } from './game';
 import { Ant, EaterAnt, GuardAnt } from './ants';
 
 import vorpal = require('vorpal'); // external lib for command-line interaction
@@ -23,7 +23,7 @@ export function showMapOf(game: AntGame) {
  * @param game  Current game object that is playing
  */
 function getMap(game: AntGame) {
-  let places: Place[][] = game.getPlaces();
+  let places: GamePlace[][] = game.getPlaces();
   let tunnelLength = places[0].length;
   let beeIcon = chalk.bgYellow.black('B');
 
@@ -53,7 +53,7 @@ function getMap(game: AntGame) {
 
     // for each tunnel, construct every single place (the sopt that holds an insect)
     for (let j = 0; j < places[i].length; j++) {
-      let place: Place = places[i][j];
+      let place: GamePlace = places[i][j];
 
       map += iconFor(place.getAnt());
       map += ' ';
@@ -69,7 +69,7 @@ function getMap(game: AntGame) {
     map += '\n    ';
     for (let j = 0; j < places[i].length; j++) {
       let place = places[i][j];
-      if (place.isWater()) {
+      if (place instanceof WaterPlaceDecorator) {
         map += chalk.bgCyan('~~~~') + ' '; // draw the water on the game board if the place has water 
       } else {
         map += '==== ';
@@ -105,7 +105,7 @@ function iconFor(ant: Ant) {
     case "Scuba":
       icon = chalk.cyan('S'); break;
     case "Guard":
-    console.log((<GuardAnt>ant).getGuarded());
+      console.log((<GuardAnt>ant).getGuarded());
       let guarded: Ant = (<GuardAnt>ant).getGuarded();
       if (guarded !== undefined) {
         icon = chalk.underline(iconFor(guarded)); break;

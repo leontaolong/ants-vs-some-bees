@@ -256,7 +256,7 @@ export class EaterAnt extends Ant {
   }
 
   isFull(): boolean {
-      return this.stomach.getBees().length > 0;
+    return this.stomach.getBees().length > 0;
   }
 
   /**

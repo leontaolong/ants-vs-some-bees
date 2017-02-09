@@ -1,4 +1,5 @@
 "use strict";
+var game_1 = require("./game");
 var vorpal = require("vorpal");
 var chalk = require("chalk");
 var _ = require("lodash");
@@ -43,7 +44,7 @@ function getMap(game) {
         map += '\n    ';
         for (var j = 0; j < places[i].length; j++) {
             var place = places[i][j];
-            if (place.isWater()) {
+            if (place instanceof game_1.WaterPlaceDecorator) {
                 map += chalk.bgCyan('~~~~') + ' ';
             }
             else {
