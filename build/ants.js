@@ -129,52 +129,49 @@ var ThrowerAnt = (function (_super) {
         return _this;
     }
     ThrowerAnt.prototype.act = function () {
-        console.log("attack1");
-        attackAction(this, this.boost, this.place, this.damage);
-        console.log("attack2");
+        attack(this, this.boost, this.place, this.damage);
     };
     return ThrowerAnt;
 }(Ant));
 exports.ThrowerAnt = ThrowerAnt;
-function attackAction(ant, boost, place, damage) {
-    console.log("attack3");
+function attack(ant, boost, place, damage) {
     if (boost == "FlyingLeaf") {
-        var boostAdding = new FlyingLeafSetter();
-        boostAdding.act(place, ant, damage);
+        var booster = new FlyingLeafApplyer();
+        booster.act(place, ant, damage);
     }
     else if (boost == "StickyLeaf") {
-        var boostAdding = new StickyLeafSetter();
-        boostAdding.act(place, ant, damage);
+        var booster = new IcyLeafApplyer();
+        booster.act(place, ant, damage);
     }
     else if (boost == "IcyLeaf") {
-        var boostAdding = new StickyLeafSetter();
-        boostAdding.act(place, ant, damage);
+        var booster = new StickyLeafApplyer();
+        booster.act(place, ant, damage);
     }
     else if (boost == "BugSpray") {
-        var boostAdding = new BugSpraySetter();
-        boostAdding.act(place, ant, damage);
+        var booster = new BugSprayApplyer();
+        booster.act(place, ant, damage);
     }
     else {
-        var boostAdding = new NonBoostSetter();
-        boostAdding.act(place, ant, damage);
+        var booster = new NoBoostApplyer();
+        booster.act(place, ant, damage);
     }
     ant.setBoost(undefined);
 }
-var NonBoostSetter = (function () {
-    function NonBoostSetter() {
+var NoBoostApplyer = (function () {
+    function NoBoostApplyer() {
     }
-    NonBoostSetter.prototype.act = function (place, ant, damage) {
+    NoBoostApplyer.prototype.act = function (place, ant, damage) {
         var target = place.getClosestBee(3);
         console.log(ant + ' throws a leaf at ' + target);
         if (target)
             target.reduceArmor(damage);
     };
-    return NonBoostSetter;
+    return NoBoostApplyer;
 }());
-var BugSpraySetter = (function () {
-    function BugSpraySetter() {
+var BugSprayApplyer = (function () {
+    function BugSprayApplyer() {
     }
-    BugSpraySetter.prototype.act = function (place, ant, damage) {
+    BugSprayApplyer.prototype.act = function (place, ant, damage) {
         console.log(ant + ' sprays bug repellant everywhere!');
         var target = place.getClosestBee(0);
         while (target) {
@@ -183,24 +180,24 @@ var BugSpraySetter = (function () {
         }
         ant.reduceArmor(10);
     };
-    return BugSpraySetter;
+    return BugSprayApplyer;
 }());
-var FlyingLeafSetter = (function () {
-    function FlyingLeafSetter() {
+var FlyingLeafApplyer = (function () {
+    function FlyingLeafApplyer() {
     }
-    FlyingLeafSetter.prototype.act = function (place, ant, damage) {
+    FlyingLeafApplyer.prototype.act = function (place, ant, damage) {
         var target = place.getClosestBee(5);
         if (target) {
             console.log(ant + ' throws a leaf at ' + target);
             target.reduceArmor(damage);
         }
     };
-    return FlyingLeafSetter;
+    return FlyingLeafApplyer;
 }());
-var StickyLeafSetter = (function () {
-    function StickyLeafSetter() {
+var StickyLeafApplyer = (function () {
+    function StickyLeafApplyer() {
     }
-    StickyLeafSetter.prototype.act = function (place, ant, damage) {
+    StickyLeafApplyer.prototype.act = function (place, ant, damage) {
         var target = place.getClosestBee(3);
         if (target) {
             console.log(ant + ' throws a leaf at ' + target);
@@ -209,12 +206,12 @@ var StickyLeafSetter = (function () {
             console.log(target + ' is stuck!');
         }
     };
-    return StickyLeafSetter;
+    return StickyLeafApplyer;
 }());
-var IcyLeaf = (function () {
-    function IcyLeaf() {
+var IcyLeafApplyer = (function () {
+    function IcyLeafApplyer() {
     }
-    IcyLeaf.prototype.act = function (place, ant, damage) {
+    IcyLeafApplyer.prototype.act = function (place, ant, damage) {
         var target = place.getClosestBee(3);
         if (target) {
             console.log(ant + ' throws a leaf at ' + target);
@@ -223,7 +220,7 @@ var IcyLeaf = (function () {
             console.log(target + ' is cold!');
         }
     };
-    return IcyLeaf;
+    return IcyLeafApplyer;
 }());
 var EaterAnt = (function (_super) {
     __extends(EaterAnt, _super);
@@ -300,7 +297,7 @@ var ScubaAnt = (function (_super) {
         return _this;
     }
     ScubaAnt.prototype.act = function () {
-        attackAction(this, this.boost, this.place, this.damage);
+        attack(this, this.boost, this.place, this.damage);
     };
     return ScubaAnt;
 }(Ant));

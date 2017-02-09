@@ -187,40 +187,37 @@ export class ThrowerAnt extends Ant {
    * Throw leafs to the bees and apply boosts if any 
    */
   act() {
-    console.log("attack1");
-    attackAction(this, this.boost, this.place, this.damage);
-    console.log("attack2");
+    attack(this, this.boost, this.place, this.damage);
   }
 }
 
 
-function attackAction(ant: Ant, boost: String, place: GamePlace, damage: number) {
-  console.log("attack3");
+function attack(ant: Ant, boost: String, place: GamePlace, damage: number) {
   if (boost == "FlyingLeaf") {
-    let boostAdding: BoostSetter = new FlyingLeafSetter();
-    boostAdding.act(place, ant, damage);
+    let booster: BoostApplyer = new FlyingLeafApplyer();
+    booster.act(place, ant, damage);
   } else if (boost == "StickyLeaf") {
-    let boostAdding: BoostSetter = new StickyLeafSetter();
-    boostAdding.act(place, ant, damage);
+    let booster: BoostApplyer = new IcyLeafApplyer();
+    booster.act(place, ant, damage);
   } else if (boost == "IcyLeaf") {
-    let boostAdding: BoostSetter = new StickyLeafSetter();
-    boostAdding.act(place, ant, damage);
+    let booster: BoostApplyer = new StickyLeafApplyer();
+    booster.act(place, ant, damage);
   } else if (boost == "BugSpray") {
-    let boostAdding: BoostSetter = new BugSpraySetter();
-    boostAdding.act(place, ant, damage);
+    let booster: BoostApplyer = new BugSprayApplyer();
+    booster.act(place, ant, damage);
   } else {
-    let boostAdding: BoostSetter = new NonBoostSetter();
-    boostAdding.act(place, ant, damage);
+    let booster: BoostApplyer = new NoBoostApplyer();
+    booster.act(place, ant, damage);
   }
   ant.setBoost(undefined);
 }
 
 
-interface BoostSetter {
+interface BoostApplyer {
   act(place: GamePlace, ant: Ant, damage: number);
 }
 
-class NonBoostSetter implements BoostSetter {
+class NoBoostApplyer implements BoostApplyer{
   act(place: GamePlace, ant: Ant, damage: number) {
     let target = place.getClosestBee(3);
     console.log(ant + ' throws a leaf at ' + target);
@@ -229,7 +226,7 @@ class NonBoostSetter implements BoostSetter {
   }
 }
 
-class BugSpraySetter implements BoostSetter {
+class BugSprayApplyer implements BoostApplyer {
   act(place: GamePlace, ant: Ant, damage: number) {
     console.log(ant + ' sprays bug repellant everywhere!');
     let target = place.getClosestBee(0);
@@ -241,7 +238,7 @@ class BugSpraySetter implements BoostSetter {
   }
 }
 
-class FlyingLeafSetter implements BoostSetter {
+class FlyingLeafApplyer implements BoostApplyer {
   act(place: GamePlace, ant: Ant, damage: number) {
     let target = place.getClosestBee(5);
     if (target) {
@@ -251,7 +248,7 @@ class FlyingLeafSetter implements BoostSetter {
   }
 }
 
-class StickyLeafSetter implements BoostSetter {
+class StickyLeafApplyer implements BoostApplyer{
   act(place: GamePlace, ant: Ant, damage: number) {
     let target = place.getClosestBee(3);
     if (target) {
@@ -263,7 +260,7 @@ class StickyLeafSetter implements BoostSetter {
   }
 }
 
-class IcyLeaf implements BoostSetter {
+class IcyLeafApplyer implements BoostApplyer {
   act(place: GamePlace, ant: Ant, damage: number) {
     let target = place.getClosestBee(3);
     if (target) {
@@ -275,9 +272,6 @@ class IcyLeaf implements BoostSetter {
     }
   }
 }
-
-
-
 
 /**
  * An Eater ant that has 2 armor, a stomach and costs 4 food to deploy,
@@ -375,7 +369,7 @@ export class ScubaAnt extends Ant {
    * similar behavior with Thrower ant
    */
   act() {
-    attackAction(this, this.boost, this.place, this.damage);
+    attack(this, this.boost, this.place, this.damage);
   }
 }
 
@@ -412,6 +406,7 @@ export interface Factory {
   produceIcon(ant: Ant): String;
 }
 
+// A factory class that produce ants and their icons
 export class AntFactory implements Factory {
   produceAnt(type: string) {
     switch (type.toLowerCase()) {
