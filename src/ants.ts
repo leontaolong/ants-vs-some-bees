@@ -1,4 +1,5 @@
 import { AntColony, Place, GamePlace } from './game';
+import chalk = require('chalk');  // external lib for adding styling to plain string
 
 /**
  * An abstract skeleton class that has name, armor, place and act
@@ -193,7 +194,7 @@ export class ThrowerAnt extends Ant {
 }
 
 
-function attackAction(ant: Ant, boost: String, place: GamePlace, damage:number) {
+function attackAction(ant: Ant, boost: String, place: GamePlace, damage: number) {
   console.log("attack3");
   if (boost == "FlyingLeaf") {
     let boostAdding: BoostSetter = new FlyingLeafSetter();
@@ -216,7 +217,7 @@ function attackAction(ant: Ant, boost: String, place: GamePlace, damage:number) 
 
 
 interface BoostSetter {
-  act(place: GamePlace, ant: Ant, damage:number);
+  act(place: GamePlace, ant: Ant, damage: number);
 }
 
 class NonBoostSetter implements BoostSetter {
@@ -224,7 +225,7 @@ class NonBoostSetter implements BoostSetter {
     let target = place.getClosestBee(3);
     console.log(ant + ' throws a leaf at ' + target);
     if (target)
-    target.reduceArmor(damage);
+      target.reduceArmor(damage);
   }
 }
 
@@ -403,4 +404,59 @@ export class GuardAnt extends Ant {
    * The Guard ant doesn't have any other particular behavior except guarding
    */
   act() { }
+}
+
+
+export interface Factory {
+  produceAnt(type: string): Ant;
+  produceIcon(ant: Ant): String;
+}
+
+export class AntFactory implements Factory {
+  produceAnt(type: string) {
+    switch (type.toLowerCase()) {
+      case "grower":
+        return new GrowerAnt();
+      case "thrower":
+        return new ThrowerAnt();
+      case "eater":
+        return new EaterAnt();
+      case "scuba":
+        return new ScubaAnt();
+      case "guard":
+        return new GuardAnt();
+      default:
+        return null;
+    }
+  }
+
+  produceIcon(ant: Ant): String {
+
+    switch (ant.name.toLowerCase()) {
+      case "grower":
+        return chalk.green('G');
+      case "thrower":
+        return chalk.red('T');
+      case "eater":
+        if ((<EaterAnt>ant).isFull()) {
+          return chalk.yellow.bgMagenta('E');
+        }
+        else {
+          return chalk.magenta('E');
+        }
+      case "scuba":
+        return chalk.cyan('S');
+      case "guard":
+        let guarded: Ant = (<GuardAnt>ant).getGuarded();
+        if (guarded != undefined) {
+          console.log("createAntSymbol Guard undefined");
+          return chalk.underline(new AntFactory().produceIcon(guarded));
+        } else {
+          console.log("createAntSymbol Guard !undefined");
+          return chalk.underline('x');
+        }
+      default:
+        return '?';
+    }
+  }
 }

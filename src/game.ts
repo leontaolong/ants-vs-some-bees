@@ -1,4 +1,4 @@
-import { Insect, Bee, Ant, GrowerAnt, ThrowerAnt, EaterAnt, ScubaAnt, GuardAnt } from './ants';
+import { Insect, Bee, Ant, GrowerAnt, ThrowerAnt, EaterAnt, ScubaAnt, GuardAnt, Factory, AntFactory } from './ants';
 
 /**
  * An abstract GamePlace class that represents each spot in the tunnel
@@ -248,6 +248,7 @@ class Hive extends Place {
   addWave(attackTurn: number, numBees: number): Hive {
     let wave: Bee[] = [];
     for (let i = 0; i < numBees; i++) {
+      console.log("bee armor is " + this.beeArmor);
       let bee = new Bee(this.beeArmor, this.beeDamage, this);
       this.addBee(bee);
       wave.push(bee);
@@ -498,20 +499,11 @@ class AntGame {
   deployAnt(antType: string, placeCoordinates: string): string {
     let ant;
     // determine and initialize a specifc type of Ant
-    switch (antType.toLowerCase()) {
-      case "grower":
-        ant = new GrowerAnt(); break;
-      case "thrower":
-        ant = new ThrowerAnt(); break;
-      case "eater":
-        ant = new EaterAnt(); break;
-      case "scuba":
-        ant = new ScubaAnt(); break;
-      case "guard":
-        ant = new GuardAnt(); break;
-      default:
-        return 'unknown ant type';
-    }
+    var factory:Factory = new AntFactory
+    if(factory.produceAnt(antType) != null)
+      ant = factory.produceAnt(antType);
+    else
+      return 'unknown ant type';
 
     try {
       let coords = placeCoordinates.split(',');

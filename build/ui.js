@@ -1,5 +1,6 @@
 "use strict";
 var game_1 = require("./game");
+var ants_1 = require("./ants");
 var vorpal = require("vorpal");
 var chalk = require("chalk");
 var _ = require("lodash");
@@ -61,38 +62,10 @@ function iconFor(ant) {
         return ' ';
     }
     ;
-    var icon;
-    switch (ant.name) {
-        case "Grower":
-            icon = chalk.green('G');
-            break;
-        case "Thrower":
-            icon = chalk.red('T');
-            break;
-        case "Eater":
-            if (ant.isFull())
-                icon = chalk.yellow.bgMagenta('E');
-            else
-                icon = chalk.magenta('E');
-            break;
-        case "Scuba":
-            icon = chalk.cyan('S');
-            break;
-        case "Guard":
-            console.log(ant.getGuarded());
-            var guarded = ant.getGuarded();
-            if (guarded !== undefined) {
-                icon = chalk.underline(iconFor(guarded));
-                break;
-            }
-            else {
-                icon = chalk.underline('x');
-                break;
-            }
-        default:
-            icon = '?';
-    }
-    return icon;
+    var symbol;
+    var f = new ants_1.AntFactory();
+    symbol = f.produceIcon(ant);
+    return symbol;
 }
 function play(game) {
     Vorpal

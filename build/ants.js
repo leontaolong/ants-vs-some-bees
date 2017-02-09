@@ -10,6 +10,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var game_1 = require("./game");
+var chalk = require("chalk");
 var Insect = (function () {
     function Insect(armor, place) {
         this.armor = armor;
@@ -321,4 +322,55 @@ var GuardAnt = (function (_super) {
     return GuardAnt;
 }(Ant));
 exports.GuardAnt = GuardAnt;
+var AntFactory = (function () {
+    function AntFactory() {
+    }
+    AntFactory.prototype.produceAnt = function (type) {
+        switch (type.toLowerCase()) {
+            case "grower":
+                return new GrowerAnt();
+            case "thrower":
+                return new ThrowerAnt();
+            case "eater":
+                return new EaterAnt();
+            case "scuba":
+                return new ScubaAnt();
+            case "guard":
+                return new GuardAnt();
+            default:
+                return null;
+        }
+    };
+    AntFactory.prototype.produceIcon = function (ant) {
+        switch (ant.name.toLowerCase()) {
+            case "grower":
+                return chalk.green('G');
+            case "thrower":
+                return chalk.red('T');
+            case "eater":
+                if (ant.isFull()) {
+                    return chalk.yellow.bgMagenta('E');
+                }
+                else {
+                    return chalk.magenta('E');
+                }
+            case "scuba":
+                return chalk.cyan('S');
+            case "guard":
+                var guarded = ant.getGuarded();
+                if (guarded != undefined) {
+                    console.log("createAntSymbol Guard undefined");
+                    return chalk.underline(new AntFactory().produceIcon(guarded));
+                }
+                else {
+                    console.log("createAntSymbol Guard !undefined");
+                    return chalk.underline('x');
+                }
+            default:
+                return '?';
+        }
+    };
+    return AntFactory;
+}());
+exports.AntFactory = AntFactory;
 //# sourceMappingURL=ants.js.map

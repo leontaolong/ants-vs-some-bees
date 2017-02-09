@@ -180,6 +180,7 @@ var Hive = (function (_super) {
     Hive.prototype.addWave = function (attackTurn, numBees) {
         var wave = [];
         for (var i = 0; i < numBees; i++) {
+            console.log("bee armor is " + this.beeArmor);
             var bee = new ants_1.Bee(this.beeArmor, this.beeDamage, this);
             this.addBee(bee);
             wave.push(bee);
@@ -337,25 +338,11 @@ var AntGame = (function () {
     };
     AntGame.prototype.deployAnt = function (antType, placeCoordinates) {
         var ant;
-        switch (antType.toLowerCase()) {
-            case "grower":
-                ant = new ants_1.GrowerAnt();
-                break;
-            case "thrower":
-                ant = new ants_1.ThrowerAnt();
-                break;
-            case "eater":
-                ant = new ants_1.EaterAnt();
-                break;
-            case "scuba":
-                ant = new ants_1.ScubaAnt();
-                break;
-            case "guard":
-                ant = new ants_1.GuardAnt();
-                break;
-            default:
-                return 'unknown ant type';
-        }
+        var factory = new ants_1.AntFactory;
+        if (factory.produceAnt(antType) != null)
+            ant = factory.produceAnt(antType);
+        else
+            return 'unknown ant type';
         try {
             var coords = placeCoordinates.split(',');
             var place = this.colony.getPlaces()[coords[0]][coords[1]];

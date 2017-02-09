@@ -1,5 +1,5 @@
 import { AntGame, AntColony, Place, Hive, WaterPlaceDecorator, GamePlace } from './game';
-import { Ant, EaterAnt, GuardAnt } from './ants';
+import { Ant, EaterAnt, GuardAnt, Factory, AntFactory } from './ants';
 
 import vorpal = require('vorpal'); // external lib for command-line interaction
 import chalk = require('chalk');  // external lib for adding styling to plain string
@@ -89,33 +89,10 @@ function getMap(game: AntGame) {
  */
 function iconFor(ant: Ant) {
   if (ant === undefined) { return ' ' };
-  let icon: string;
-  switch (ant.name) {
-    case "Grower":
-      icon = chalk.green('G'); break;
-    case "Thrower":
-      icon = chalk.red('T'); break;
-    case "Eater":
-      // mark the Eater ant if it's currently full
-      if ((<EaterAnt>ant).isFull())
-        icon = chalk.yellow.bgMagenta('E');
-      else
-        icon = chalk.magenta('E');
-      break;
-    case "Scuba":
-      icon = chalk.cyan('S'); break;
-    case "Guard":
-      console.log((<GuardAnt>ant).getGuarded());
-      let guarded: Ant = (<GuardAnt>ant).getGuarded();
-      if (guarded !== undefined) {
-        icon = chalk.underline(iconFor(guarded)); break;
-      } else {
-        icon = chalk.underline('x'); break;
-      }
-    default:
-      icon = '?';
-  }
-  return icon;
+  let symbol:String;
+  let f:Factory = new AntFactory();
+  symbol = f.produceIcon(ant);
+  return symbol;
 }
 
 /**
