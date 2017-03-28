@@ -16,7 +16,7 @@ It looks something like this:
 * `npm install` to install all dependencies
 * `npm start` to start running the game
 
-## Play the Game
+## Playing the Game
 
 A game of Ants vs. Some-Bees is played in turns. Each turn, the player can deploy ants into different spots in the colony (as long as the colony has enough food for that ant). Once the player has finished deploying ants, the turn is over. At the end of the turn, all the insects (ants first, then bees) perform their individual actions: ants throw leaves at bees, and bees sting ants. Then any special environmental effects (e.g., from the tunnels) occur. Finally any new bees arrive from the hive, and the next turn starts.
 
