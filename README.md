@@ -1,6 +1,6 @@
 # Ants vs. Some-Bees
 
-This module is a simple turn-based tower defense game called Ants vs. Some Bees (inspired by the PopCap game [Plants vs. Zombies](http://www.popcap.com/plants-vs-zombies-1) using Object Oriented and Strong Typed [Typescript](https://www.typescriptlang.org/). In this game (which is played on the command-line), the player populates an ant colony with the bravest ants they can muster. The ants must protect their queen from the evil bees that invade their territory. Irritate the bees enough by throwing leaves at them, and they will be vanquished. Fail to pester the airborne intruders adequately, and your queen will succumb to the bees' wrath! 🐝🐝🐝
+This module is a simple turn-based tower defense game called Ants vs. Some Bees (inspired by the PopCap game [Plants vs. Zombies](http://www.popcap.com/plants-vs-zombies-1) using Object Oriented and Strongly Typed [Typescript](https://www.typescriptlang.org/). In this game (which is played on the command-line), the player populates an ant colony with the bravest ants they can muster. The ants must protect their queen from the evil bees that invade their territory. Irritate the bees enough by throwing leaves at them, and they will be vanquished. Fail to pester the airborne intruders adequately, and your queen will succumb to the bees' wrath! 🐝🐝🐝
 
 In the `docs/` directory, there is a fully implemented [JavaDoc tags](http://typedoc.org/guides/doccomments/) API documentation for this application using [TypeDoc](http://typedoc.org/) 
 
